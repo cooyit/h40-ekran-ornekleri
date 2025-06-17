@@ -418,7 +418,8 @@ ALTER TABLE hastane_model
 
 /* hastane_model_kullanicilar TABLOSUNA FOREIGN KEY EKLEMEK
 -- hasmodkullanici: hastane_model_kullanicilar tablosu icin kisaltma 
--- hasmodel: hastane_model tablosu icin kisaltma */
+-- hasmodel: hastane_model tablosu icin kisaltma 
+-- kultur: kullanici_turleri tablosu icin kisaltma */
 
 -- hastane_model_kullanicilar -> hastane_model icin foreign key
 ALTER TABLE hastane_model_kullanicilar
@@ -432,6 +433,13 @@ ALTER TABLE hastane_model_kullanicilar
   ADD CONSTRAINT fk_hasmodkullanici_kullanicilar_kullanici_id
   FOREIGN KEY (kullanici_id)
   REFERENCES kullanicilar(kullanici_id)
+  ON DELETE RESTRICT;
+
+-- hastane_model_kullanicilar -> kullanici_turleri icin foreign key
+ALTER TABLE hastane_model_kullanicilar
+  ADD CONSTRAINT fk_hasmodkullanici_kultur_kullanici_turu_id
+  FOREIGN KEY (kullanici_turu_id)
+  REFERENCES kullanici_turleri(kullanici_turu_id)
   ON DELETE RESTRICT;
 
 
