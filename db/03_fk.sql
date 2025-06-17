@@ -184,7 +184,7 @@ ALTER TABLE kriterler
 
 -- gostergeler -> dil destegi icin recursive foreign key
 ALTER TABLE gostergeler
-  ADD CONSTRAINT fk_gostergeler_self
+  ADD CONSTRAINT fk_gostergeler_ust_gosterge_id
   FOREIGN KEY (ust_gosterge_id) REFERENCES gostergeler(gosterge_id)
   ON DELETE RESTRICT;
 
