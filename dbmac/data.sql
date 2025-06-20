@@ -9,9 +9,9 @@ INSERT INTO diller (dil_adi) VALUES
 /* ulkeler tablosuna veri ekle */
 INSERT INTO ulkeler (ulke_adi) VALUES 
 ('Türkiye'),
-('Amerika'),
-('İspanya'),
-('Suudi Arabistan');
+('USA'),
+('Spain'),
+('Saudi Arabia');
 
 
 /* sehirler tablosuna veri ekle */
@@ -38,6 +38,12 @@ INSERT INTO ulke_dil (ulke_id, dil_id, varsayilan) VALUES
 INSERT INTO model_turleri (model_turu_adi) VALUES 
 ('Puan Esaslı'),
 ('Seviye Esaslı');
+
+
+
+
+
+--------------------------------
 
 
 /* hastane_turleri tablosuna veri ekle */
@@ -129,20 +135,8 @@ FROM base,
      ) AS val(adi, dil);
 
 
-
-
-
-
-
-
-
-
-
-
-
--- elle veri ekleme id kullanarak
-
-
+/* --------------------------------
+-- elle veri ekleme id kullanarak hastane turleri
 
 -- ingilizce verileri ekle
 INSERT INTO hastane_turleri (ust_hastane_turu_id, hastane_turu_adi, dil_adi) VALUES
@@ -168,7 +162,7 @@ INSERT INTO hastane_turleri (ust_hastane_turu_id, hastane_turu_adi, dil_adi) VAL
 (4, 'مستشفى العيون', 'Arabic'),
 (5, 'مستشفى الولادة', 'Arabic');
 
-
+-------------------------------- */
 
 
 
@@ -243,6 +237,8 @@ FROM base,
      ) AS val(adi, aciklama, dil);
 
 
+/* --------------------------------
+
 -- elle veri ekleme id kullanarak
 
 
@@ -267,6 +263,7 @@ INSERT INTO kullanici_turleri (ust_kullanici_turu_id, kullanici_turu_adi, acikla
 (3, 'الموظفون الطبيون', 'الموظفون الذين يقدمون خدمات الرعاية الصحية', 'Arabic'),
 (4, 'عام', 'نوع مستخدم للأغراض العامة', 'Arabic');
 
+-------------------------------- */
 
 
 
@@ -285,6 +282,31 @@ INSERT INTO seviyeler (ust_seviye_id, seviye_adi, dil_adi) VALUES
 (NULL, 'Seviye 9', 'Türkçe'),
 (NULL, 'Seviye 10', 'Türkçe');
 
+-- loop ile cevirileri ekleme
+
+DO $$
+DECLARE
+    i INT;
+    tr_adi TEXT;
+    tr_id INT;
+BEGIN
+    FOR i IN 1..10 LOOP
+        -- 1. Türkçe kaydın ID'sini al
+        SELECT seviye_id INTO tr_id
+        FROM seviyeler
+        WHERE seviye_adi = 'Seviye ' || i AND dil_adi = 'Türkçe';
+
+        -- 2. İngilizce, İspanyolca, Arapça çevirileri ekle
+        INSERT INTO seviyeler (ust_seviye_id, seviye_adi, dil_adi)
+        VALUES
+            (tr_id, 'Level ' || i, 'English'),
+            (tr_id, 'Nivel ' || i, 'Español'),
+            (tr_id, 'المستوى ' || i, 'Arabic');
+    END LOOP;
+END $$;
+
+
+/* --------------------------------
 
 -- seviye 1 çevirileri
 WITH base AS (
@@ -330,32 +352,6 @@ FROM base,
         ('المستوى 3', 'Arabic')
      ) AS val(adi, dil);
 
-
--- loop ile veri ekleme
-
-DO $$
-DECLARE
-    i INT;
-    tr_adi TEXT;
-    tr_id INT;
-BEGIN
-    FOR i IN 1..10 LOOP
-        -- 1. Türkçe kaydın ID'sini al
-        SELECT seviye_id INTO tr_id
-        FROM seviyeler
-        WHERE seviye_adi = 'Seviye ' || i AND dil_adi = 'Türkçe';
-
-        -- 2. İngilizce, İspanyolca, Arapça çevirileri ekle
-        INSERT INTO seviyeler (ust_seviye_id, seviye_adi, dil_adi)
-        VALUES
-            (tr_id, 'Level ' || i, 'English'),
-            (tr_id, 'Nivel ' || i, 'Español'),
-            (tr_id, 'المستوى ' || i, 'Arabic');
-    END LOOP;
-END $$;
-
-
-
 -- elle veri ekleme id kullanarak
 
 -- ingilizce verileri ekle
@@ -398,6 +394,7 @@ INSERT INTO seviyeler (ust_seviye_id, seviye_adi, dil_adi) VALUES
 (10, 'المستوى 10', 'Arabic');
 
 
+-------------------------------- */
 
 /* modeller tablosuna veri ekle */
 
@@ -408,36 +405,18 @@ INSERT INTO modeller (
 ) VALUES
 (NULL, 2, 'EMRAM', 'EMRAM TR GENEL', 'Elektronik Sağlık Kaydı Modeli', 'Tek', 1, '2022-01-01', NULL, 'Türkçe'),
 
-(NULL, 2, 'O-EMRAM', 'O-EMRAM TR TIBBİ ve İDARİ', 'Ayaktan Tedavi EMRAM', 'Tek', 1, '2022-06-15', NULL, 'Türkçe'),
+(NULL, 2, 'O-EMRAM', 'O-EMRAM TR I+T', 'Ayaktan Tedavi EMRAM', 'Tek', 1, '2022-06-15', NULL, 'Türkçe'),
 
 (NULL, 2, 'CCMM', 'CCMM TR TEK', 'Süreklilik Olgunluk Modeli', 'Tek', 1, '2023-01-10', NULL, 'Türkçe'),
 
 (NULL, 2, 'AMAM', 'AMAM TR GENEL', 'Analitik Olgunluk Modeli', 'Coklu', 1, '2023-05-01', NULL, 'Türkçe'),
 
-(NULL, 1, 'SKS', 'SKS TR TIBBİ', 'Sağlıkta Kalite Standartları', 'Tek', 1, '2021-11-01', NULL, 'Türkçe'),
+(NULL, 1, 'SKS', 'SKS TR GENEL', 'Sağlıkta Kalite Standartları', 'Tek', 1, '2021-11-01', NULL, 'Türkçe'),
 
 (NULL, 1, 'SAS', 'SAS TR TASLAK', 'Sağlıkta Akreditasyon Setleri', 'Coklu', 0, '2021-12-01', NULL, 'Türkçe'),
 
-(NULL, 1, 'InnoPerf', 'InnoPerf TR KAPALI', 'Performans ve Yenilikçilik Modeli', 'Coklu', 2, '2024-01-01', '2025-01-01', 'Türkçe');
+(NULL, 1, 'InnoPerf', 'InnoPerf TR V.1', 'Performans ve Yenilikçilik Modeli', 'Coklu', 2, '2024-01-01', '2025-01-01', 'Türkçe');
 
-
--- EMRAM çevirileri
-WITH base AS (
-  SELECT model_id FROM modeller
-  WHERE model_resmi_adi = 'EMRAM' AND dil_adi = 'Türkçe'
-)
-INSERT INTO modeller (
-  ust_model_id, model_turu_id, model_resmi_adi, model_alias_adi, model_aciklama,
-  kullanici_kapsami, aktif, devreye_alma_tarihi, devreden_kaldirilma_tarihi, dil_adi
-)
-SELECT 
-  base.model_id, 2, val.adi, val.alias, val.aciklama, 'Tek', 1, '2022-01-01', NULL, val.dil
-FROM base,
-     (VALUES
-        ('EMRAM', 'EMRAM EN GENEL'', 'Electronic Medical Record Adoption Model', 'English'),
-        ('EMRAM', 'EMRAM ES GENEL', 'Modelo de Adopción de Registros Médicos Electrónicos', 'Español'),
-        ('EMRAM', 'EMRAM AR GENEL', 'نموذج تبني السجل الطبي الإلكتروني', 'Arabic')
-     ) AS val(adi, alias, aciklama, dil);
 
 
 
@@ -459,8 +438,8 @@ BEGIN
                 devreye_alma_tarihi, devreden_kaldirilma_tarihi, dil_adi
             ) VALUES
                 (rec.model_id, rec.model_turu_id, 'EMRAM', 'EMRAM EN GENEL', 'Electronic Medical Record Adoption Model', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'English'),
-                (rec.model_id, rec.model_turu_id, 'EMRAM', 'EMRAM ES GENERAL', 'Modelo de Adopción de Registros Médicos Electrónicos', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
-                (rec.model_id, rec.model_turu_id, 'EMRAM', 'EMRAM AR عام', 'نموذج تبني السجل الطبي الإلكتروني', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
+                (rec.model_id, rec.model_turu_id, 'EMRAM', 'EMRAM ES GENEL', 'Modelo de Adopción de Registros Médicos Electrónicos', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
+                (rec.model_id, rec.model_turu_id, 'EMRAM', 'EMRAM AR GENEL', 'نموذج تبني السجل الطبي الإلكتروني', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
 
         ELSIF rec.model_resmi_adi = 'O-EMRAM' THEN
             INSERT INTO modeller (
@@ -468,9 +447,9 @@ BEGIN
                 model_aciklama, kullanici_kapsami, aktif,
                 devreye_alma_tarihi, devreden_kaldirilma_tarihi, dil_adi
             ) VALUES
-                (rec.model_id, rec.model_turu_id, 'O-EMRAM', 'O-EMRAM EN ADM+MED', 'Outpatient EMRAM', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'English'),
-                (rec.model_id, rec.model_turu_id, 'O-EMRAM', 'O-EMRAM ES ADM+MED', 'EMRAM para atención ambulatoria', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
-                (rec.model_id, rec.model_turu_id, 'O-EMRAM', 'O-EMRAM AR إداري وطبي', 'إي إم رام للعيادات الخارجية', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
+                (rec.model_id, rec.model_turu_id, 'O-EMRAM', 'O-EMRAM EN I+T', 'Outpatient EMRAM', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'English'),
+                (rec.model_id, rec.model_turu_id, 'O-EMRAM', 'O-EMRAM ES I+T', 'EMRAM para atención ambulatoria', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
+                (rec.model_id, rec.model_turu_id, 'O-EMRAM', 'O-EMRAM AR I+T', 'إي إم رام للعيادات الخارجية', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
 
         ELSIF rec.model_resmi_adi = 'CCMM' THEN
             INSERT INTO modeller (
@@ -478,9 +457,9 @@ BEGIN
                 model_aciklama, kullanici_kapsami, aktif,
                 devreye_alma_tarihi, devreden_kaldirilma_tarihi, dil_adi
             ) VALUES
-                (rec.model_id, rec.model_turu_id, 'CCMM', 'CCMM EN SOLO', 'Continuity Care Maturity Model', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'English'),
-                (rec.model_id, rec.model_turu_id, 'CCMM', 'CCMM ES SOLO', 'Modelo de Madurez para la Continuidad del Cuidado', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
-                (rec.model_id, rec.model_turu_id, 'CCMM', 'CCMM AR فقط', 'نموذج نضج رعاية الاستمرارية', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
+                (rec.model_id, rec.model_turu_id, 'CCMM', 'CCMM EN T', 'Continuity Care Maturity Model', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'English'),
+                (rec.model_id, rec.model_turu_id, 'CCMM', 'CCMM ES T', 'Modelo de Madurez para la Continuidad del Cuidado', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
+                (rec.model_id, rec.model_turu_id, 'CCMM', 'CCMM AR T', 'نموذج نضج رعاية الاستمرارية', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
 
         ELSIF rec.model_resmi_adi = 'AMAM' THEN
             INSERT INTO modeller (
@@ -488,9 +467,9 @@ BEGIN
                 model_aciklama, kullanici_kapsami, aktif,
                 devreye_alma_tarihi, devreden_kaldirilma_tarihi, dil_adi
             ) VALUES
-                (rec.model_id, rec.model_turu_id, 'AMAM', 'AMAM EN GENERAL', 'Analytics Maturity Assessment Model', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'English'),
-                (rec.model_id, rec.model_turu_id, 'AMAM', 'AMAM ES GENERAL', 'Modelo de Evaluación de Madurez Analítica', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
-                (rec.model_id, rec.model_turu_id, 'AMAM', 'AMAM AR عام', 'نموذج تقييم نضج التحليلات', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
+                (rec.model_id, rec.model_turu_id, 'AMAM', 'AMAM EN GENEL', 'Analytics Maturity Assessment Model', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'English'),
+                (rec.model_id, rec.model_turu_id, 'AMAM', 'AMAM ES GENEL', 'Modelo de Evaluación de Madurez Analítica', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
+                (rec.model_id, rec.model_turu_id, 'AMAM', 'AMAM AR GENEL', 'نموذج تقييم نضج التحليلات', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
 
         ELSIF rec.model_resmi_adi = 'InnoPerf' THEN
             INSERT INTO modeller (
@@ -498,13 +477,33 @@ BEGIN
                 model_aciklama, kullanici_kapsami, aktif,
                 devreye_alma_tarihi, devreden_kaldirilma_tarihi, dil_adi
             ) VALUES
-                (rec.model_id, rec.model_turu_id, 'InnoPerf', 'InnoPerf EN CLOSED', 'Innovation & Performance Maturity Model', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'English'),
-                (rec.model_id, rec.model_turu_id, 'InnoPerf', 'InnoPerf ES CERRADO', 'Modelo de Madurez en Rendimiento e Innovación', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
-                (rec.model_id, rec.model_turu_id, 'InnoPerf', 'InnoPerf AR مغلق', 'نموذج النضج في الأداء والابتكار', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
+                (rec.model_id, rec.model_turu_id, 'InnoPerf', 'InnoPerf EN V.1', 'Innovation & Performance Maturity Model', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'English'),
+                (rec.model_id, rec.model_turu_id, 'InnoPerf', 'InnoPerf ES V.1', 'Modelo de Madurez en Rendimiento e Innovación', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Español'),
+                (rec.model_id, rec.model_turu_id, 'InnoPerf', 'InnoPerf AR V.1', 'نموذج النضج في الأداء والابتكار', rec.kullanici_kapsami, rec.aktif, rec.devreye_alma_tarihi, rec.devreden_kaldirilma_tarihi, 'Arabic');
         END IF;
     END LOOP;
 END $$;
 
+
+/* --------------------------------
+
+-- EMRAM çevirileri
+WITH base AS (
+  SELECT model_id FROM modeller
+  WHERE model_resmi_adi = 'EMRAM' AND dil_adi = 'Türkçe'
+)
+INSERT INTO modeller (
+  ust_model_id, model_turu_id, model_resmi_adi, model_alias_adi, model_aciklama,
+  kullanici_kapsami, aktif, devreye_alma_tarihi, devreden_kaldirilma_tarihi, dil_adi
+)
+SELECT 
+  base.model_id, 2, val.adi, val.alias, val.aciklama, 'Tek', 1, '2022-01-01', NULL, val.dil
+FROM base,
+     (VALUES
+        ('EMRAM', 'EMRAM EN GENEL'', 'Electronic Medical Record Adoption Model', 'English'),
+        ('EMRAM', 'EMRAM ES GENEL', 'Modelo de Adopción de Registros Médicos Electrónicos', 'Español'),
+        ('EMRAM', 'EMRAM AR GENEL', 'نموذج تبني السجل الطبي الإلكتروني', 'Arabic')
+     ) AS val(adi, alias, aciklama, dil);
 
 -- elle veri ekleme id kullanarak
 
@@ -555,8 +554,7 @@ INSERT INTO modeller (
 (7, 1, 'InnoPerf', 'InnoPerf AR PASİF', 'نموذج الابتكار والأداء', 'Coklu', 2, '2024-01-01', '2025-01-01', 'Arabic');
 
 
-
-
+-------------------------------- */
 
 
 /* model_ulke tablosuna test verileri ekle */
@@ -570,8 +568,6 @@ INSERT INTO model_ulke (ulke_id, model_id, devreye_alma_tarihi, dil_adi, aktif) 
 (1, 5, '2021-12-01', 'Türkçe', TRUE),      -- SKS
 (1, 6, '2022-01-01', 'Türkçe', FALSE),     -- SAS (taslak)
 (1, 7, '2024-02-01', 'Türkçe', FALSE);     -- InnoPerf (kaldırılmış)
-
-
 
 
 -- Amerika için İngilizce modeller

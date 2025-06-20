@@ -1,4 +1,4 @@
--- model ve model turu
+model ve model turu
 
 SELECT 
     m.model_id,
@@ -23,7 +23,7 @@ ORDER BY
 
 
 
--- model ve ulke 
+model ve ulke 
 
 SELECT 
     m.model_id,
@@ -49,7 +49,7 @@ ORDER BY
     m.model_id;
 
 
--- model ve seviye
+model ve seviye
 
 SELECT 
     m.model_id,
@@ -75,7 +75,7 @@ ORDER BY
     m.model_id;
 
 
--- model ve hastane turu
+model ve hastane turu
 
 SELECT 
     m.model_id,
@@ -106,7 +106,7 @@ ORDER BY
 
 
 
--- ulke ve sehirler
+ulke ve sehirler
 
 SELECT 
     u.ulke_adi AS "Ülke",
@@ -117,7 +117,7 @@ JOIN
     sehirler s ON u.ulke_id = s.ulke_id
 
 
--- ulkeler ve diller
+ulkeler ve diller
 
 SELECT 
     u.ulke_adi AS "Ülke",
@@ -138,7 +138,7 @@ ORDER BY
 
 
 
--- model ulke dil 
+model ulke dil 
 
 SELECT 
     m.model_resmi_adi AS "Model Adı",
@@ -157,5 +157,92 @@ ORDER BY
     m.model_resmi_adi, u.ulke_adi;
 
 
+
+-- hastane turleri cevirileri
+--tr kayıt null
+SELECT 
+    ust.hastane_turu_adi AS "Türkçe Ana Ad", 
+    alt.hastane_turu_adi AS "Çeviri", 
+    alt.dil_adi AS "Dil"
+FROM hastane_turleri AS alt
+LEFT JOIN hastane_turleri AS ust
+    ON alt.ust_hastane_turu_id = ust.hastane_turu_id
+ORDER BY ust.hastane_turu_adi, alt.dil_adi;
+
+-- coalesce hızlı
+SELECT 
+    COALESCE(ust.hastane_turu_adi, alt.hastane_turu_adi) AS "Türkçe Ana Ad",
+    alt.hastane_turu_adi AS "Çeviri",
+    alt.dil_adi AS "Dil"
+FROM hastane_turleri AS alt
+LEFT JOIN hastane_turleri AS ust
+    ON alt.ust_hastane_turu_id = ust.hastane_turu_id
+ORDER BY "Türkçe Ana Ad", alt.dil_adi;
+
+-- case
+
+SELECT 
+    CASE 
+        WHEN ust.hastane_turu_adi IS NOT NULL THEN ust.hastane_turu_adi
+        ELSE alt.hastane_turu_adi
+    END AS "Türkçe Ana Ad",
+    alt.hastane_turu_adi AS "Çeviri",
+    alt.dil_adi AS "Dil"
+FROM hastane_turleri AS alt
+ LEFT JOIN hastane_turleri AS ust
+     ON alt.ust_hastane_turu_id = ust.hastane_turu_id
+ ORDER BY "Türkçe Ana Ad", alt.dil_adi;
+
+
+-- kullanici turleri cevirileri
+
+SELECT
+    CASE
+        WHEN ust.kullanici_turu_adi IS NOT NULL THEN ust.kullanici_turu_adi
+        ELSE alt.kullanici_turu_adi
+    END AS "Türkçe Ana Ad",
+    alt.kullanici_turu_adi AS "Çeviri",
+    alt.dil_adi AS "Dil"
+FROM kullanici_turleri AS alt
+LEFT JOIN kullanici_turleri AS ust
+    ON alt.ust_kullanici_turu_id = ust.kullanici_turu_id
+ORDER BY "Türkçe Ana Ad", alt.dil_adi;
+
+-- seviyeler cevirileri
+
+SELECT
+    CASE
+        WHEN ust.seviye_adi IS NOT NULL THEN ust.seviye_adi
+        ELSE alt.seviye_adi
+    END AS "Türkçe Ana Ad",
+    alt.seviye_adi AS "Çeviri",
+    alt.dil_adi AS "Dil"
+FROM seviyeler AS alt
+LEFT JOIN seviyeler AS ust
+    ON alt.ust_seviye_id = ust.seviye_id
+ORDER BY "Türkçe Ana Ad", alt.dil_adi;
+
+
+-- modeller test  
+
+SELECT 
+    m.model_alias_adi AS "Model Adı",
+    m.model_aciklama AS "Açıklama",
+    m.dil_adi AS "Dil",
+    
+    CASE m.aktif
+        WHEN 1 THEN 'Yayında'
+        WHEN 0 THEN 'Taslak'
+        WHEN 2 THEN 'Devre Dışı'
+        ELSE 'Bilinmiyor'
+    END AS "Durum",
+
+    CASE 
+        WHEN m.aktif = 2 THEN TO_CHAR(m.devreden_kaldirilma_tarihi, 'DD.MM.YYYY')
+        ELSE TO_CHAR(m.devreye_alma_tarihi, 'DD.MM.YYYY')
+    END AS "Tarih"
+
+FROM modeller AS m
+ORDER BY "Model Adı", "Dil";
 
 
