@@ -114,6 +114,7 @@ CREATE TABLE modeller (
     model_turu_id INTEGER,            -- FK model_turu tablosu
     model_resmi_adi VARCHAR(128),     
     model_alias_adi VARCHAR(128),
+    model_kodu VARCHAR(20),
     model_aciklama TEXT,
 	kullanici_kapsami VARCHAR(32),  -- 'Tek' veya 'Coklu' değerleri
     aktif SMALLINT,                    -- 0: pasif, 1: aktif, 2: taslak
@@ -1092,7 +1093,8 @@ END $$;
 -- modeller test  
 
 SELECT 
-    m.model_alias_adi AS "Model Adı",
+	m.model_resmi_adi AS "Model Adı",
+    m.model_alias_adi AS "Model Kısa Adı",
     m.model_aciklama AS "Açıklama",
     m.dil_adi AS "Dil",
     
@@ -1112,6 +1114,96 @@ FROM modeller AS m
 ORDER BY "Model Adı", "Dil";
 
 -------------------------------- */
+
+
+/* model_ulke tablosuna test verileri ekle */
+
+-- ingilizce modelleri ekle
+INSERT INTO model_ulke (ulke_id, model_id, devreye_alma_tarihi, dil_adi, aktif)
+SELECT  u.ulke_id,
+        m.model_id,
+        COALESCE(m.devreye_alma_tarihi, CURRENT_DATE),
+        'English',
+        TRUE                                -- İngilizce global atama hep aktif
+FROM    ulkeler         u                  -- tüm ülkeler
+JOIN    modeller        m  ON m.dil_adi = 'English'
+WHERE   m.aktif = 1                         -- sadece Yayında olanlar
+ON CONFLICT DO NOTHING;                     -- tekrar çalıştırıldığında çakışma yok
+
+
+-- ülke dil tablosu ile model_ulke tablosunu birleştir
+WITH dil_map AS (
+    SELECT dil_id, dil_adi FROM diller
+)
+INSERT INTO model_ulke (ulke_id, model_id, devreye_alma_tarihi, dil_adi, aktif)
+SELECT  ud.ulke_id,
+        m.model_id,
+        COALESCE(m.devreye_alma_tarihi, CURRENT_DATE),
+        m.dil_adi,
+        (m.aktif = 1)               -- Yayında → TRUE, Devre Dışı/Taslak → FALSE
+FROM    modeller      m
+JOIN    dil_map       d   ON d.dil_adi = m.dil_adi
+JOIN    ulke_dil      ud  ON ud.dil_id  = d.dil_id
+WHERE   m.dil_adi <> 'English'       -- İngilizceler zaten eklendi
+ON CONFLICT DO NOTHING;
+
+/* -------------------------------- 
+-- modeller ülkeler ve dilleri joinleme
+SELECT u.ulke_adi,
+       m.model_resmi_adi,
+       m.dil_adi,
+       mu.aktif
+FROM   model_ulke mu
+JOIN   ulkeler   u ON u.ulke_id  = mu.ulke_id
+JOIN   modeller  m ON m.model_id = mu.model_id
+ORDER  BY u.ulke_adi, m.model_resmi_adi, m.dil_adi;
+-------------------------------- */
+
+INSERT INTO model_seviye (model_id, seviye_id)
+SELECT m.model_id,
+       s.seviye_id
+FROM   modeller      m
+JOIN   model_turleri t ON t.model_turu_id = m.model_turu_id
+JOIN   seviyeler     s ON s.dil_adi      = m.dil_adi
+WHERE  t.model_turu_adi = 'Seviye Esaslı'               -- sadece level-based
+  AND (  s.ust_seviye_id IS NOT NULL                    -- çeviri satırları
+      OR (s.ust_seviye_id IS NULL AND m.dil_adi = 'Türkçe') )  -- kök TR
+ON CONFLICT DO NOTHING;
+
+/* -------------------------------- 
+
+-- SELECT
+--     m.model_resmi_adi,
+--     m.dil_adi,
+--     s.seviye_adi,
+--     u.ulke_adi,
+-- CASE WHEN mu.aktif THEN 'Yayında' ELSE 'Taslak' END AS Durum
+--           -- son satırda VİRGÜL YOK
+-- FROM   model_seviye ms
+-- JOIN   modeller    m ON m.model_id  = ms.model_id
+-- JOIN   seviyeler   s ON s.seviye_id = ms.seviye_id
+-- JOIN   model_ulke  mu ON mu.model_id = m.model_id
+-- JOIN   ulkeler     u ON u.ulke_id   = mu.ulke_id
+-- ORDER  BY m.model_resmi_adi, m.dil_adi, s.seviye_id;
+
+-- SELECT m.model_resmi_adi,
+--        t.model_turu_adi,
+--        count(*) AS seviye_sayisi
+-- FROM   model_seviye ms
+-- JOIN   modeller      m ON m.model_id   = ms.model_id
+-- JOIN   model_turleri t ON t.model_turu_id = m.model_turu_id
+-- GROUP  BY m.model_resmi_adi, t.model_turu_adi
+-- ORDER  BY m.model_resmi_adi;
+
+-------------------------------- */
+
+
+
+
+
+
+
+
 
 
 
