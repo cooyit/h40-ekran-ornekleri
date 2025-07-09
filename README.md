@@ -6,6 +6,8 @@ git clone https://github.com/cooyit/saglik40-db-mockup.git
 
 
 ### Navigate to the project directory:
+cd ekran-tasarimlari
+
 ### Go to the folder of the design you want to open (e.g., for models)
 
 cd model
