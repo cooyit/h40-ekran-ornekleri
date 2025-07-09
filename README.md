@@ -2,7 +2,7 @@
 
 ### Clone the repository:
 
-git clone https://github.com/cooyit/saglik40-db-mockup.git
+git clone https://github.com/cooyit/h40-ekran-ornekleri.git
 
 
 ### Navigate to the project directory:
