@@ -15,6 +15,7 @@ cd model
 ### Install the dependencies:
 
 pnpm install
+
 pnpm build
 
 ### Start the development server:
